@@ -282,7 +282,7 @@ template<
     bit::detail::integer_adapter_closure tp_integer_adapter_closure_t
 >
 auto constexpr operator|(
-    tp_integral_t&&                p_value,
+    const tp_integral_t            p_value,
     tp_integer_adapter_closure_t&& p_integer_adapter_closure
 )
 noexcept(noexcept(
@@ -294,12 +294,12 @@ noexcept(noexcept(
 -> decltype(
     std::invoke(
         std::forward<tp_integer_adapter_closure_t>(p_integer_adapter_closure),
-        std::forward<tp_integral_t>(p_value)
+        p_value
     )
 ) {
     return std::invoke(
         std::forward<tp_integer_adapter_closure_t>(p_integer_adapter_closure),
-        std::forward<tp_integral_t>(p_value)
+        p_value
     );
 }
 
@@ -320,12 +320,12 @@ noexcept(noexcept(
 -> decltype(
     p_value = std::invoke(
         std::forward<tp_integer_adapter_closure_t>(p_integer_adapter_closure),
-        std::forward<tp_integral_t>(p_value)
+        p_value
     )
 ) {
     return p_value = std::invoke(
         std::forward<tp_integer_adapter_closure_t>(p_integer_adapter_closure),
-        std::forward<tp_integral_t>(p_value)
+        p_value
     );
 }
 
