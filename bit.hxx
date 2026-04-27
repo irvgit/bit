@@ -281,6 +281,7 @@ template<
     typename                             tp_integral_t,
     bit::detail::integer_adapter_closure tp_integer_adapter_closure_t
 >
+[[nodiscard]]
 auto constexpr operator|(
     const tp_integral_t            p_value,
     tp_integer_adapter_closure_t&& p_integer_adapter_closure
@@ -307,6 +308,7 @@ template<
     bit::detail::no_const                tp_integral_t,
     bit::detail::integer_adapter_closure tp_integer_adapter_closure_t
 >
+[[maybe_unused]]
 auto constexpr operator|=(
     tp_integral_t&                 p_value,
     tp_integer_adapter_closure_t&& p_integer_adapter_closure
