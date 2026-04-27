@@ -40,6 +40,15 @@ namespace bit {
                 tp_type2_t
             >;
 
+        template<
+            typename tp_type1_t,
+            typename tp_type2_t
+        >
+        auto constexpr equal_size_of = sizeof(tp_type1_t) == sizeof(tp_type2_t);
+
+        template<typename tp_type_t>
+        concept no_const = !std::is_const_v<std::remove_reference_t<tp_type_t>>;
+        
         struct integer_adapter_closure_base {};
 
         template<
@@ -108,6 +117,12 @@ namespace bit {
             }
 
             template<class... tp_arguments_ts>
+            requires(
+                std::constructible_from<
+                    std::tuple<tp_arguments_ts...>,
+                    tp_arguments_ts...
+                >
+            )
             constexpr explicit partial(
                 decltype(std::ignore),
                 tp_arguments_ts&&... p_arguments
@@ -226,6 +241,38 @@ namespace bit {
                     )
                 );
             }
+            
+            template<
+                integer_adapter_closure tp_integer_adapter_closure_left_argument_t,
+                integer_adapter_closure tp_integer_adapter_closure_right_argument_t
+            >
+            requires(
+                std::constructible_from<
+                    tp_integer_adapter_closure_left_t,
+                    tp_integer_adapter_closure_left_argument_t
+                > &&
+                std::constructible_from<
+                    tp_integer_adapter_closure_right_t,
+                    tp_integer_adapter_closure_right_argument_t
+                >
+            )
+            constexpr explicit pipe(
+                tp_integer_adapter_closure_left_argument_t&&  p_left,
+                tp_integer_adapter_closure_right_argument_t&& p_right
+            )
+            noexcept(
+                std::is_nothrow_constructible_v<
+                    tp_integer_adapter_closure_left_t,
+                    tp_integer_adapter_closure_left_argument_t
+                > &&
+                std::is_nothrow_constructible_v<
+                    tp_integer_adapter_closure_right_t,
+                    tp_integer_adapter_closure_right_argument_t
+                >
+            ):
+                m_left{std::forward<tp_integer_adapter_closure_left_argument_t>(p_left)},
+                m_right{std::forward<tp_integer_adapter_closure_right_argument_t>(p_right)}
+            {}
         };
     }
 }
@@ -270,7 +317,6 @@ noexcept(noexcept(
         std::remove_cvref_t<tp_integer_adapter_closure1_t>,
         std::remove_cvref_t<tp_integer_adapter_closure2_t>
     >{
-        std::ignore,
         std::declval<tp_integer_adapter_closure1_t>(),
         std::declval<tp_integer_adapter_closure2_t>()
     }
@@ -280,7 +326,6 @@ noexcept(noexcept(
         std::remove_cvref_t<tp_integer_adapter_closure1_t>,
         std::remove_cvref_t<tp_integer_adapter_closure2_t>
     >{
-        std::ignore,
         std::forward<tp_integer_adapter_closure1_t>(p_integer_adapter_closure1),
         std::forward<tp_integer_adapter_closure2_t>(p_integer_adapter_closure2)
     }
@@ -289,7 +334,6 @@ noexcept(noexcept(
         std::remove_cvref_t<tp_integer_adapter_closure1_t>,
         std::remove_cvref_t<tp_integer_adapter_closure2_t>
     >{
-        std::ignore,
         std::forward<tp_integer_adapter_closure1_t>(p_integer_adapter_closure1),
         std::forward<tp_integer_adapter_closure2_t>(p_integer_adapter_closure2)
     };
@@ -301,17 +345,6 @@ namespace bit {
 
     template<typename tp_type_t>
     auto constexpr half_word_bit_size_of = bit_size_of<tp_type_t> / 2;
-
-    namespace detail {
-        template<
-            typename tp_type1_t,
-            typename tp_type2_t
-        >
-        auto constexpr equal_size_of = sizeof(tp_type1_t) == sizeof(tp_type2_t);
-
-        template<typename tp_type_t>
-        concept no_const = !std::is_const_v<std::remove_reference_t<tp_type_t>>;
-    }
 
     namespace detail {
         template<
