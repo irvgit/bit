@@ -381,9 +381,10 @@ namespace bit {
             std::integral<tp_first_t> &&
             (... && std::integral<tp_rest_ts>) &&
             (... && (std::signed_integral<tp_first_t> == std::signed_integral<tp_rest_ts>));    
+            
+        template<class... tp_types_ts>
+        concept integrals_of_matching_signedness = detail::integrals_of_matching_signedness_impl<tp_types_ts...>;
     }
-    template<class... tp_types_ts>
-    concept integrals_of_matching_signedness = detail::integrals_of_matching_signedness_impl<tp_types_ts...>;
 
     namespace detail {
         struct shift_left_fn : integer_adapter_base {
