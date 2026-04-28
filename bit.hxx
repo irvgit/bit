@@ -49,6 +49,9 @@ namespace bit {
         template<typename tp_type_t>
         concept no_const = !std::is_const_v<std::remove_reference_t<tp_type_t>>;
         
+        template<int tp_value>
+        auto constexpr must_only_be_called_by_closure = tp_value != 0;
+
         struct integer_adapter_closure_base {};
 
         template<
@@ -70,21 +73,18 @@ namespace bit {
                 std::index_sequence<tp_is...>
             )
             noexcept(noexcept(
-                std::invoke(
-                    tp_adapter_t{},
+                tp_adapter_t{}.template operator()<1>(
                     std::declval<tp_integral_t>(),
                     std::get<tp_is>(std::declval<tp_self_t>().m_elements)...
                 )
             ))
             -> decltype(
-                std::invoke(
-                    tp_adapter_t{},
+                tp_adapter_t{}.template operator()<1>(
                     std::forward<tp_integral_t>(p_value),
                     std::get<tp_is>(std::forward<tp_self_t>(p_self).m_elements)...
                 )
             ) {
-                return std::invoke(
-                    tp_adapter_t{},
+                return tp_adapter_t{}.template operator()<1>(
                     std::forward<tp_integral_t>(p_value),
                     std::get<tp_is>(std::forward<tp_self_t>(p_self).m_elements)...
                 );
@@ -139,12 +139,12 @@ namespace bit {
 
         struct integer_adapter_base {
             template<
-                bool     tp_is_base_overload = true,
+                int      tp_overload = 2,
                 typename tp_self_t,
                 class... tp_arguments_ts
             >
             requires(
-                tp_is_base_overload &&
+                tp_overload == 2 &&
                 different_to<
                     std::remove_cvref_t<tp_self_t>,
                     integer_adapter_base
@@ -154,7 +154,7 @@ namespace bit {
                     first_type_t<tp_arguments_ts...>& p_first_value,
                     tp_arguments_ts&&...              p_arguments
                 ) {
-                    std::forward<tp_self_t>(p_self).template operator()<false>(
+                    std::forward<tp_self_t>(p_self).template operator()<1>(
                         p_first_value,
                         std::forward<tp_arguments_ts>(p_arguments)...
                     );
@@ -391,11 +391,12 @@ namespace bit {
     namespace detail {
         struct shift_left_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -417,11 +418,12 @@ namespace bit {
     namespace detail {
         struct shift_right_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -443,11 +445,12 @@ namespace bit {
     namespace detail {
         struct bit_and_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -469,11 +472,12 @@ namespace bit {
     namespace detail {
         struct bit_xor_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -495,11 +499,12 @@ namespace bit {
     namespace detail {
         struct bit_or_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -521,12 +526,13 @@ namespace bit {
     namespace detail {
         struct align_by_weak_shift_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0,
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -554,12 +560,13 @@ namespace bit {
     namespace detail {
         struct align_by_strong_shift_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -585,12 +592,13 @@ namespace bit {
     namespace detail {
         struct enable_in_range_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -614,12 +622,13 @@ namespace bit {
     namespace detail {
         struct disable_in_range_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -643,12 +652,13 @@ namespace bit {
     namespace detail {
         struct set_in_range_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -683,11 +693,12 @@ namespace bit {
     namespace detail {
         struct enable_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -707,12 +718,13 @@ namespace bit {
                 );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -740,11 +752,12 @@ namespace bit {
     namespace detail {
         struct disable_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -764,12 +777,13 @@ namespace bit {
                 );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -797,11 +811,12 @@ namespace bit {
     namespace detail {
         struct set_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -826,12 +841,13 @@ namespace bit {
                     );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -866,11 +882,12 @@ namespace bit {
     namespace detail {
         struct enable_from_right_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -896,11 +913,12 @@ namespace bit {
     namespace detail {
         struct enable_from_left_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -927,11 +945,12 @@ namespace bit {
     namespace detail {
         struct disable_from_right_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -957,11 +976,12 @@ namespace bit {
     namespace detail {
         struct disable_from_left_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -988,11 +1008,12 @@ namespace bit {
     namespace detail {
         struct set_from_right_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -1023,11 +1044,12 @@ namespace bit {
     namespace detail {
         struct set_from_left_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -1057,9 +1079,8 @@ namespace bit {
 
     namespace detail {
         template<std::integral tp_result_t>
-        struct integers_to_mask_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<bool=0, std::integral... tp_integral_ts>
+        struct integers_to_mask_fn {
+            template<std::integral... tp_integral_ts>
             requires(
                 integrals_of_matching_signedness<tp_integral_ts...> &&
                 sizeof...(tp_integral_ts) <= bit_size_of<tp_result_t>
@@ -1079,9 +1100,8 @@ namespace bit {
     auto constexpr integers_to_mask = detail::integers_to_mask_fn<tp_result_t>{};
 
     namespace detail {
-        struct decimal_to_mask_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<bool=0, 
+        struct decimal_to_mask_fn {
+            template<
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
@@ -1114,11 +1134,12 @@ namespace bit {
     namespace detail {
         struct enable_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral_t,
                     tp_integral_ts...
@@ -1140,11 +1161,12 @@ namespace bit {
     namespace detail {
         struct disable_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral_t,
                     tp_integral_ts...
@@ -1166,11 +1188,12 @@ namespace bit {
     namespace detail {
         struct set_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral_t,
                     tp_integral_ts...
@@ -1195,12 +1218,13 @@ namespace bit {
     namespace detail {
         struct extract_in_range_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1231,11 +1255,12 @@ namespace bit {
     namespace detail {
         struct extract_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -1255,12 +1280,13 @@ namespace bit {
                 );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1288,11 +1314,12 @@ namespace bit {
     namespace detail {
         struct extract_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral_t,
                     tp_integral_ts...
@@ -1314,7 +1341,8 @@ namespace bit {
     namespace detail {
         struct extract_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -1332,7 +1360,8 @@ namespace bit {
     namespace detail {
         struct extract_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -1349,11 +1378,12 @@ namespace bit {
     namespace detail {
         struct get_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral_t,
                     tp_integral_ts...
@@ -1378,7 +1408,8 @@ namespace bit {
     namespace detail {
         struct enable_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -1395,7 +1426,8 @@ namespace bit {
     namespace detail {
         struct disable_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -1412,7 +1444,8 @@ namespace bit {
     namespace detail {
         struct enable_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -1429,7 +1462,8 @@ namespace bit {
     namespace detail {
         struct disable_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -1455,7 +1489,7 @@ namespace bit {
    namespace detail {
         struct copy_in_range_to_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t,
@@ -1463,6 +1497,7 @@ namespace bit {
                 typename tp_integral5_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1509,13 +1544,14 @@ namespace bit {
     namespace detail {
         struct copy_in_range_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1551,13 +1587,14 @@ namespace bit {
     namespace detail {
         struct copy_from_to_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1587,7 +1624,7 @@ namespace bit {
                 );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t,
@@ -1595,6 +1632,7 @@ namespace bit {
                 typename tp_integral5_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1632,12 +1670,13 @@ namespace bit {
     namespace detail {
         struct copy_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1664,13 +1703,14 @@ namespace bit {
                 );
             }
             
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1705,12 +1745,13 @@ namespace bit {
     namespace detail {
         struct copy_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -1747,7 +1788,7 @@ namespace bit {
     namespace detail {
         struct move_in_range_to_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t,
@@ -1755,6 +1796,7 @@ namespace bit {
                 typename tp_integral5_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -1798,13 +1840,14 @@ namespace bit {
     namespace detail {
         struct move_in_range_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -1840,13 +1883,14 @@ namespace bit {
     namespace detail {
         struct move_from_to_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -1876,7 +1920,7 @@ namespace bit {
                 );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t,
@@ -1884,6 +1928,7 @@ namespace bit {
                 typename tp_integral5_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -1921,12 +1966,13 @@ namespace bit {
     namespace detail {
         struct move_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -1954,13 +2000,14 @@ namespace bit {
                 );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -1996,12 +2043,13 @@ namespace bit {
     namespace detail {
         struct move_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -2038,13 +2086,14 @@ namespace bit {
     namespace detail {
         struct swap_in_range_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -2096,12 +2145,13 @@ namespace bit {
     namespace detail {
         struct swap_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -2128,13 +2178,14 @@ namespace bit {
                 );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -2169,12 +2220,13 @@ namespace bit {
     namespace detail {
         struct swap_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>,
@@ -2221,12 +2273,13 @@ namespace bit {
     namespace detail {
         struct reverse_in_range_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -2256,11 +2309,12 @@ namespace bit {
     namespace detail {
         struct reverse_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2280,7 +2334,7 @@ namespace bit {
                 );
             }
 
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
@@ -2313,7 +2367,8 @@ namespace bit {
     namespace detail {
         struct reverse_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -2330,7 +2385,8 @@ namespace bit {
     namespace detail {
         struct reverse_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -2348,7 +2404,8 @@ namespace bit {
     namespace detail {
         struct reverse_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -2365,11 +2422,12 @@ namespace bit {
     namespace detail {
         struct copy_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2400,11 +2458,12 @@ namespace bit {
     namespace detail {
         struct copy_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2434,11 +2493,12 @@ namespace bit {
     namespace detail {
         struct move_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>
@@ -2469,11 +2529,12 @@ namespace bit {
     namespace detail {
         struct move_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>
@@ -2503,11 +2564,12 @@ namespace bit {
     namespace detail {
         struct swap_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>
@@ -2538,11 +2600,12 @@ namespace bit {
     namespace detail {
         struct swap_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 no_const tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     std::remove_reference_t<tp_integral2_t>
@@ -2572,7 +2635,8 @@ namespace bit {
     namespace detail {
         struct swap_half_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, std::integral tp_integral_t>
+            template<int tp_overload = 0, std::integral tp_integral_t>
+            requires(must_only_be_called_by_closure<tp_overload>)
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
@@ -2596,11 +2660,12 @@ namespace bit {
     namespace detail {
         struct or_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2626,11 +2691,12 @@ namespace bit {
     namespace detail {
         struct or_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2656,11 +2722,12 @@ namespace bit {
     namespace detail {
         struct and_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2686,11 +2753,12 @@ namespace bit {
     namespace detail {
         struct and_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2716,11 +2784,12 @@ namespace bit {
     namespace detail {
         struct xor_low_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2746,11 +2815,12 @@ namespace bit {
     namespace detail {
         struct xor_high_word_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
@@ -2776,13 +2846,14 @@ namespace bit {
     namespace detail {
         struct compare_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t,
                 typename tp_integral4_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -2820,12 +2891,13 @@ namespace bit {
     namespace detail {
         struct symetric_compare_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 typename tp_integral3_t
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t,
@@ -2858,12 +2930,13 @@ namespace bit {
     namespace detail {
         struct assign_by_sequence_fn : integer_adapter_base {
             using integer_adapter_base::operator();
-            template<bool=0, 
+            template<int tp_overload = 0, 
                 typename tp_integral1_t,
                 typename tp_integral2_t,
                 class... tp_integral_ts
             >
             requires(
+                must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
                     tp_integral2_t
