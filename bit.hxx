@@ -286,18 +286,16 @@ auto constexpr operator|(
     const tp_integral_t            p_value,
     tp_integer_adapter_closure_t&& p_integer_adapter_closure
 )
-noexcept(noexcept(
-    std::invoke(
-        std::declval<tp_integer_adapter_closure_t>(),
-        std::declval<tp_integral_t>()
-    )
-))
--> decltype(
-    std::invoke(
-        std::forward<tp_integer_adapter_closure_t>(p_integer_adapter_closure),
-        p_value
-    )
-) {
+noexcept(
+    std::is_nothrow_invocable_v<
+        tp_integer_adapter_closure_t,
+        tp_integral_t
+    >
+)
+-> std::invoke_result_t<
+    tp_integer_adapter_closure_t,
+    tp_integral_t
+> {
     return std::invoke(
         std::forward<tp_integer_adapter_closure_t>(p_integer_adapter_closure),
         p_value
@@ -308,56 +306,69 @@ template<
     bit::detail::no_const                tp_integral_t,
     bit::detail::integer_adapter_closure tp_integer_adapter_closure_t
 >
+requires(
+    std::invocable<
+        tp_integer_adapter_closure_t,
+        tp_integral_t
+    >
+)
 [[maybe_unused]]
 auto constexpr operator|=(
     tp_integral_t&                 p_value,
     tp_integer_adapter_closure_t&& p_integer_adapter_closure
 )
-noexcept(noexcept(
-    std::declval<tp_integral_t&>() = std::invoke(
-        std::declval<tp_integer_adapter_closure_t>(),
-        std::declval<tp_integral_t>()
-    )
-))
--> decltype(
+noexcept(
+    std::is_nothrow_invocable_v<
+        tp_integer_adapter_closure_t,
+        tp_integral_t
+    >
+)
+-> std::conditional_t<
+    std::is_volatile_v<tp_integral_t>,
+    void,
+    tp_integral_t&
+> {
     p_value = std::invoke(
         std::forward<tp_integer_adapter_closure_t>(p_integer_adapter_closure),
         p_value
-    )
-) {
-    return p_value = std::invoke(
-        std::forward<tp_integer_adapter_closure_t>(p_integer_adapter_closure),
-        p_value
     );
+    if constexpr (!std::is_volatile_v<tp_integral_t>)
+        return p_value;
 }
 
 template<
     bit::detail::integer_adapter_closure tp_integer_adapter_closure1_t,
     bit::detail::integer_adapter_closure tp_integer_adapter_closure2_t
 >
+requires(
+    std::constructible_from<
+        bit::detail::pipe<
+            std::remove_cvref_t<tp_integer_adapter_closure1_t>,
+            std::remove_cvref_t<tp_integer_adapter_closure2_t>
+        >,
+        tp_integer_adapter_closure1_t,
+        tp_integer_adapter_closure2_t
+    >
+)
 [[nodiscard]]
 auto constexpr operator|(
     tp_integer_adapter_closure1_t&& p_integer_adapter_closure1,
     tp_integer_adapter_closure2_t&& p_integer_adapter_closure2
 )
-noexcept(noexcept(
-    bit::detail::pipe<
-        std::remove_cvref_t<tp_integer_adapter_closure1_t>,
-        std::remove_cvref_t<tp_integer_adapter_closure2_t>
-    >{
-        std::declval<tp_integer_adapter_closure1_t>(),
-        std::declval<tp_integer_adapter_closure2_t>()
-    }
-))
--> decltype(
-    bit::detail::pipe<
-        std::remove_cvref_t<tp_integer_adapter_closure1_t>,
-        std::remove_cvref_t<tp_integer_adapter_closure2_t>
-    >{
-        std::forward<tp_integer_adapter_closure1_t>(p_integer_adapter_closure1),
-        std::forward<tp_integer_adapter_closure2_t>(p_integer_adapter_closure2)
-    }
-) {
+noexcept(
+    std::is_nothrow_constructible_v<
+        bit::detail::pipe<
+            std::remove_cvref_t<tp_integer_adapter_closure1_t>,
+            std::remove_cvref_t<tp_integer_adapter_closure2_t>
+        >,
+        tp_integer_adapter_closure1_t,
+        tp_integer_adapter_closure2_t
+    >
+)
+-> bit::detail::pipe<
+    std::remove_cvref_t<tp_integer_adapter_closure1_t>,
+    std::remove_cvref_t<tp_integer_adapter_closure2_t>
+> {
     return bit::detail::pipe<
         std::remove_cvref_t<tp_integer_adapter_closure1_t>,
         std::remove_cvref_t<tp_integer_adapter_closure2_t>
