@@ -538,7 +538,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_old_from_index,
                 const tp_integral3_t p_new_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     std::cmp_greater(p_new_from_index, p_old_from_index) ?
@@ -570,7 +571,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_old_from_index,
                 const tp_integral3_t p_new_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     p_new_from_index >> p_old_from_index << p_new_from_index
@@ -600,7 +602,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_to_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(p_value | (((1 << (p_to_index - p_from_index + 1)) - 1) << p_from_index));
             }
@@ -628,7 +631,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_to_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(p_value & ~(((1 << (p_to_index - p_from_index + 1)) - 1) << p_from_index));
             }
@@ -657,7 +661,8 @@ namespace bit {
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_to_index,
                 const bool           p_state
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return p_state ?
                     enable_in_range(
@@ -692,7 +697,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return enable_in_range(
                     p_value,
@@ -718,7 +724,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return enable_in_range(
                     p_value,
@@ -747,7 +754,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return disable_in_range(
                     p_value,
@@ -773,7 +781,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return disable_in_range(
                     p_value,
@@ -803,7 +812,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const bool           p_state
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return p_state ?
                     enable_from(
@@ -834,7 +844,8 @@ namespace bit {
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_count,
                 const bool           p_state
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return p_state ?
                     enable_from(
@@ -869,7 +880,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return enable_from(
                     p_value,
@@ -898,7 +910,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     enable_from_right(
@@ -928,7 +941,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return disable_from(
                     p_value,
@@ -957,7 +971,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     p_value &
@@ -988,7 +1003,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_count,
                 const bool           p_state
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return p_state ?
                     enable_from_right(
@@ -1022,7 +1038,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_count,
                 const bool           p_state
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return p_state ?
                     enable_from_left(
@@ -1048,7 +1065,8 @@ namespace bit {
                 sizeof...(tp_integral_ts) <= bit_size_of<tp_result_t>
             )
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_ts... p_indices) const noexcept
+            auto constexpr operator()(const tp_integral_ts... p_indices)
+            const noexcept
             -> tp_result_t {
                 auto l_result = tp_result_t{};
                 auto l_index = std::size_t{};
@@ -1077,7 +1095,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 auto l_result = tp_integral1_t{};
                 for (auto i = std::size_t{}; i < p_count; ++i) {
@@ -1109,7 +1128,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral_t     p_value,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral_t {
                 return static_cast<tp_integral_t>(p_value | integers_to_mask<tp_integral_t>(p_indices...));
             }
@@ -1134,7 +1154,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral_t     p_value,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral_t {
                 return static_cast<tp_integral_t>(p_value & ~integers_to_mask<tp_integral_t>(p_indices...));
             }
@@ -1160,7 +1181,8 @@ namespace bit {
                 const tp_integral_t     p_value,
                 const bool              p_state,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral_t {
                 return p_state ?
                     enable(p_value, p_indices...) :
@@ -1190,7 +1212,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_to_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     p_value &
@@ -1222,7 +1245,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return (*this)(
                     p_value,
@@ -1248,7 +1272,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return extract_in_range(
                     p_value,
@@ -1277,7 +1302,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral_t     p_value,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral_t {
                 return static_cast<tp_integral_t>(p_value & integers_to_mask<tp_integral_t>(p_indices...));
             }
@@ -1290,7 +1316,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return extract_from(
                     p_value,
@@ -1307,7 +1334,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return extract_from(
                     p_value,
@@ -1335,7 +1363,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral_t     p_value,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> bool {
                 return static_cast<bool>(get(
                     p_value,
@@ -1351,7 +1380,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return enable_from_right(
                     p_value,
@@ -1367,7 +1397,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return disable_from_right(
                     p_value,
@@ -1383,7 +1414,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return enable_from_left(
                     p_value,
@@ -1399,7 +1431,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return disable_from_left(
                     p_value,
@@ -1449,7 +1482,8 @@ namespace bit {
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_to_index,
                 const tp_integral5_t p_output_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     disable_in_range(
@@ -1499,7 +1533,8 @@ namespace bit {
                 const tp_integral2_t p_source,
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_to_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return copy_in_range_to(
                     p_destination,
@@ -1540,7 +1575,8 @@ namespace bit {
                 const tp_integral2_t p_source,
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_output_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return copy_in_range_to(
                     p_destination,
@@ -1578,7 +1614,8 @@ namespace bit {
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_count,
                 const tp_integral5_t p_output_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return copy_in_range_to(
                     p_destination,
@@ -1616,7 +1653,8 @@ namespace bit {
                 const tp_integral1_t p_destination,
                 const tp_integral2_t p_source,
                 const tp_integral3_t p_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return copy_in_range(
                     p_destination,
@@ -1650,7 +1688,8 @@ namespace bit {
                 const tp_integral2_t p_source,
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return copy_in_range(
                     p_destination,
@@ -1687,7 +1726,8 @@ namespace bit {
                 const tp_integral1_t    p_destination,
                 const tp_integral2_t    p_source,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     disable(
@@ -1734,7 +1774,8 @@ namespace bit {
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_to_index,
                 const tp_integral5_t p_output_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 auto l_result = copy_in_range_to(
                     p_destination,
@@ -1781,7 +1822,8 @@ namespace bit {
                 tp_integral2_t&      p_source,
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_to_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return move_in_range_to(
                     p_destination,
@@ -1822,7 +1864,8 @@ namespace bit {
                 tp_integral2_t&      p_source,
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_output_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return move_in_range_to(
                     p_destination,
@@ -1860,7 +1903,8 @@ namespace bit {
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_count,
                 const tp_integral5_t p_output_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return move_in_range_to(
                     p_destination,
@@ -1898,7 +1942,8 @@ namespace bit {
                 const tp_integral1_t p_destination,
                 tp_integral2_t&      p_source,
                 const tp_integral3_t p_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return move_from_to(
                     p_destination,
@@ -1933,7 +1978,8 @@ namespace bit {
                 tp_integral2_t&      p_source,
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return move_from_to(
                     p_destination,
@@ -1971,7 +2017,8 @@ namespace bit {
                 const tp_integral1_t    p_destination,
                 tp_integral2_t&         p_source,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 auto l_result = copy(
                     p_destination,
@@ -2015,7 +2062,8 @@ namespace bit {
                 tp_integral2_t&      p_value2,
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_to_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 auto l_value1 = static_cast<tp_integral1_t>(
                     disable_in_range(
@@ -2069,7 +2117,8 @@ namespace bit {
                 const tp_integral1_t p_value1,
                 tp_integral2_t&      p_value2,
                 const tp_integral3_t p_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return (*this)(
                     p_value1,
@@ -2103,7 +2152,8 @@ namespace bit {
                 tp_integral2_t&      p_value2,
                 const tp_integral3_t p_from_index,
                 const tp_integral4_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return swap_in_range(
                     p_value1,
@@ -2140,7 +2190,8 @@ namespace bit {
                 const tp_integral1_t    p_value1,
                 tp_integral2_t&         p_value2,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 auto l_value1 = static_cast<tp_integral1_t>(
                     disable(
@@ -2187,7 +2238,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_to_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 auto l_result = p_value;
                 for (auto i = 0; i < p_to_index - p_from_index + 1; ++i) {
@@ -2218,7 +2270,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return (*this)(
                     p_value,
@@ -2244,7 +2297,8 @@ namespace bit {
                 const tp_integral1_t p_value,
                 const tp_integral2_t p_from_index,
                 const tp_integral3_t p_count
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return reverse_in_range(
                     p_value,
@@ -2261,7 +2315,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return reverse_from(
                     p_value,
@@ -2277,7 +2332,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return reverse_from(
                     p_value,
@@ -2294,7 +2350,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return reverse_from(
                     p_value,
@@ -2326,7 +2383,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_destination,
                 const tp_integral2_t p_source
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return copy_from(
                     p_destination,
@@ -2360,7 +2418,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_destination,
                 const tp_integral2_t p_source
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return copy_from(
                     p_destination,
@@ -2393,7 +2452,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_destination,
                 tp_integral2_t&      p_source
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return move_from(
                     p_source,
@@ -2427,7 +2487,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_destination,
                 tp_integral2_t&      p_source
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return move_from(
                     p_source,
@@ -2460,7 +2521,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 tp_integral2_t&      p_value2
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return swap_from(
                     p_value1,
@@ -2494,7 +2556,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 tp_integral2_t&      p_value2
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return swap_from(
                     p_value1,
@@ -2511,7 +2574,8 @@ namespace bit {
             using integer_adapter_base::operator();
             template<bool=0, std::integral tp_integral_t>
             [[nodiscard]]
-            auto constexpr operator()(const tp_integral_t p_value) const noexcept
+            auto constexpr operator()(const tp_integral_t p_value)
+            const noexcept
             -> tp_integral_t {
                 return static_cast<tp_integral_t>(
                     extract_in_range(
@@ -2550,7 +2614,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 const tp_integral2_t p_value2
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(p_value1 | extract_low_word(p_value2));
             }
@@ -2579,7 +2644,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 const tp_integral2_t p_value2
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(p_value1 | extract_high_word(p_value2));
             }
@@ -2608,7 +2674,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 const tp_integral2_t p_value2
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(p_value1 & extract_low_word(p_value2));
             }
@@ -2637,7 +2704,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 const tp_integral2_t p_value2
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(p_value1 & extract_high_word(p_value2));
             }
@@ -2666,7 +2734,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 const tp_integral2_t p_value2
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(p_value1 ^ extract_low_word(p_value2));
             }
@@ -2695,7 +2764,8 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 const tp_integral2_t p_value2
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(p_value1 ^ extract_high_word(p_value2));
             }
@@ -2730,7 +2800,8 @@ namespace bit {
                 const tp_integral2_t p_value2,
                 const tp_integral3_t p_index1,
                 const tp_integral4_t p_index2
-            ) const noexcept
+            )
+            const noexcept
             -> bool {
                 return
                     get(
@@ -2770,7 +2841,8 @@ namespace bit {
                 const tp_integral1_t p_value1,
                 const tp_integral2_t p_value2,
                 const tp_integral3_t p_index
-            ) const noexcept
+            )
+            const noexcept
             -> bool {
                 return compare(
                     p_value1,
@@ -2803,7 +2875,8 @@ namespace bit {
                 const tp_integral1_t    p_value,
                 const tp_integral2_t    p_from_index,
                 const tp_integral_ts... p_indices
-            ) const noexcept
+            )
+            const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     disable_from(p_value, p_from_index, sizeof...(p_indices)) |
