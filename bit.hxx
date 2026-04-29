@@ -61,7 +61,7 @@ namespace bit {
         struct partial : integer_adapter_closure_base {
         private:
             std::tuple<tp_types_ts...> m_elements;
-        public:
+            
             template<
                 typename       tp_self_t,
                 typename       tp_integral_t,
@@ -69,8 +69,8 @@ namespace bit {
             >
             auto constexpr impl(
                 this tp_self_t&& p_self,
-                tp_integral_t&&  p_value,
-                std::index_sequence<tp_is...>
+                std::index_sequence<tp_is...>,
+                tp_integral_t&&  p_value
             )
             noexcept(noexcept(
                 tp_adapter_t{}.template operator()<1>(
@@ -100,19 +100,19 @@ namespace bit {
             )
             noexcept(noexcept(
                 std::declval<tp_self_t>().impl(
-                    std::declval<tp_integral_t>(),
-                    std::index_sequence_for<tp_types_ts...>{}
+                    std::index_sequence_for<tp_types_ts...>{},
+                    std::declval<tp_integral_t>()
                 )
             ))
             -> decltype(
                 std::forward<tp_self_t>(p_self).impl(
-                    std::forward<tp_integral_t>(p_value),
-                    std::index_sequence_for<tp_types_ts...>{}
+                    std::index_sequence_for<tp_types_ts...>{},
+                    std::forward<tp_integral_t>(p_value)
                 )
             ) {
                 return std::forward<tp_self_t>(p_self).impl(
-                    std::forward<tp_integral_t>(p_value),
-                    std::index_sequence_for<tp_types_ts...>{}
+                    std::index_sequence_for<tp_types_ts...>{},
+                    std::forward<tp_integral_t>(p_value)
                 );
             }
 
@@ -269,7 +269,7 @@ namespace bit {
                     tp_integer_adapter_closure_right_t,
                     tp_integer_adapter_closure_right_argument_t
                 >
-            ):
+            ) :
                 m_left{std::forward<tp_integer_adapter_closure_left_argument_t>(p_left)},
                 m_right{std::forward<tp_integer_adapter_closure_right_argument_t>(p_right)}
             {}
