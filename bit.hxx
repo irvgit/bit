@@ -686,12 +686,12 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return p_state ?
-                    enable_in_range(
+                    enable_in_range.template operator()<1>(
                         p_value,
                         p_from_index,
                         p_to_index
                     ) :
-                    disable_in_range(
+                    disable_in_range.template operator()<1>(
                         p_value,
                         p_from_index,
                         p_to_index
@@ -722,7 +722,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return enable_in_range(
+                return enable_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
                     bit_size_of<tp_integral1_t> - 1
@@ -750,7 +750,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return enable_in_range(
+                return enable_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
                     p_from_index + p_count
@@ -781,7 +781,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return disable_in_range(
+                return disable_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
                     bit_size_of<tp_integral1_t> - 1
@@ -809,7 +809,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return disable_in_range(
+                return disable_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
                     p_from_index + p_count
@@ -842,11 +842,11 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return p_state ?
-                    enable_from(
+                    enable_from.template operator()<1>(
                         p_value,
                         p_from_index
                     ) :
-                    disable_from(
+                    disable_from.template operator()<1>(
                         p_value,
                         p_from_index
                     );
@@ -875,12 +875,12 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return p_state ?
-                    enable_from(
+                    enable_from.template operator()<1>(
                         p_value,
                         p_from_index,
                         p_count
                     ) :
-                    disable_from(
+                    disable_from.template operator()<1>(
                         p_value,
                         p_from_index,
                         p_count
@@ -911,9 +911,9 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return enable_from(
+                return enable_from.template operator()<1>(
                     p_value,
-                    std::size_t{0},
+                    tp_integral1_t{0},
                     p_count
                 );
             }
@@ -943,7 +943,7 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
-                    enable_from_right(
+                    enable_from_right.template operator()<1>(
                         p_value,
                         p_count
                     ) <<
@@ -974,9 +974,9 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return disable_from(
+                return disable_from.template operator()<1>(
                     p_value,
-                    std::size_t{0},
+                    tp_integral1_t{0},
                     p_count
                 );
             }
@@ -1007,7 +1007,7 @@ namespace bit {
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     p_value &
-                    enable_from_right(
+                    enable_from_right.template operator()<1>(
                         tp_integral1_t{},
                         p_count)
                     );
@@ -1039,11 +1039,11 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return p_state ?
-                    enable_from_right(
+                    enable_from_right.template operator()<1>(
                         p_value,
                         p_count
                     ) :
-                    disable_from_right(
+                    disable_from_right.template operator()<1>(
                         p_value,
                         p_count
                     );
@@ -1075,11 +1075,11 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return p_state ?
-                    enable_from_left(
+                    enable_from_left.template operator()<1>(
                         p_value,
                         p_count
                     ) :
-                    disable_from_left(
+                    disable_from_left.template operator()<1>(
                         p_value,
                         p_count
                     );
@@ -1219,8 +1219,14 @@ namespace bit {
             const noexcept
             -> tp_integral_t {
                 return p_state ?
-                    enable(p_value, p_indices...) :
-                    disable(p_value, p_indices...);
+                    enable.template operator()<1>(
+                        p_value,
+                        p_indices...
+                    ) :
+                    disable.template operator()<1>(
+                        p_value,
+                        p_indices...
+                    );
             }
         };
     }
@@ -1252,7 +1258,7 @@ namespace bit {
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
                     p_value &
-                    enable_in_range(
+                    enable_in_range.template operator()<1>(
                         tp_integral1_t{},
                         p_from_index,
                         p_to_index
@@ -1284,10 +1290,10 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return (*this)(
+                return extract_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1 - p_from_index
+                    bit_size_of<tp_integral1_t> - 1
                 );
             }
 
@@ -1312,7 +1318,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return extract_in_range(
+                return extract_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
                     p_from_index + p_count
@@ -1350,17 +1356,15 @@ namespace bit {
     auto constexpr extract = detail::extract_fn{};
 
     namespace detail {
-        struct extract_low_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct extract_low_word_fn : integer_adapter_closure_base {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return extract_from(
+                return extract_from.template operator()<1>(
                     p_value,
-                    std::size_t{0},
+                    tp_integral_t{0},
                     bit_size_of<tp_integral_t>
                 );
             }
@@ -1369,15 +1373,13 @@ namespace bit {
     auto constexpr extract_low_word = detail::extract_low_word_fn{};
 
     namespace detail {
-        struct extract_high_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct extract_high_word_fn : integer_adapter_closure_base {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return extract_from(
+                return extract_from.template operator()<1>(
                     p_value,
                     bit_size_of<tp_integral_t>
                 );
@@ -1407,7 +1409,7 @@ namespace bit {
             )
             const noexcept
             -> bool {
-                return static_cast<bool>(get(
+                return static_cast<bool>(extract.template operator()<1>(
                     p_value,
                     p_indices...
                 ));
@@ -1417,15 +1419,13 @@ namespace bit {
     auto constexpr get = detail::get_fn{};
 
     namespace detail {
-        struct enable_low_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct enable_low_word_fn : integer_adapter_closure_base  {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return enable_from_right(
+                return enable_from_right.template operator()<1>(
                     p_value,
                     bit_size_of<tp_integral_t> / 2
                 );
@@ -1435,15 +1435,13 @@ namespace bit {
     auto constexpr enable_low_word = detail::enable_low_word_fn{};
 
     namespace detail {
-        struct disable_low_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct disable_low_word_fn : integer_adapter_closure_base  {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return disable_from_right(
+                return disable_from_right.template operator()<1>(
                     p_value,
                     bit_size_of<tp_integral_t> / 2
                 );
@@ -1453,15 +1451,13 @@ namespace bit {
     auto constexpr disable_low_word = detail::disable_low_word_fn{};
 
     namespace detail {
-        struct enable_high_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct enable_high_word_fn : integer_adapter_closure_base {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return enable_from_left(
+                return enable_from_left.template operator()<1>(
                     p_value,
                     bit_size_of<tp_integral_t> / 2
                 );
@@ -1471,15 +1467,13 @@ namespace bit {
     auto constexpr enable_high_word = detail::enable_high_word_fn{};
 
     namespace detail {
-        struct disable_high_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct disable_high_word_fn : integer_adapter_closure_base {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return disable_from_left(
+                return disable_from_left.template operator()<1>(
                     p_value,
                     bit_size_of<tp_integral_t> / 2
                 );
@@ -1532,13 +1526,13 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
-                    disable_in_range(
+                    disable_in_range.template operator()<1>(
                         p_destination,
                         p_output_index,
                         p_output_index + p_to_index - p_from_index
                     ) |
-                    align_by_strong_shift(
-                        extract_in_range(
+                    align_by_strong_shift.template operator()<1>(
+                        extract_in_range.template operator()<1>(
                             p_source,
                             p_from_index,
                             p_to_index
@@ -1583,7 +1577,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return copy_in_range_to(
+                return copy_in_range_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -1626,7 +1620,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return copy_in_range_to(
+                return copy_in_range_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -1666,7 +1660,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return copy_in_range_to(
+                return copy_in_range_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -1706,7 +1700,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return copy_in_range(
+                return copy_in_range.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -1742,7 +1736,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return copy_in_range(
+                return copy_in_range.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -1782,11 +1776,11 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
-                    disable(
+                    disable.template operator()<1>(
                         p_destination,
                         p_indices...
                     ) |
-                    extract(
+                    extract.template operator()<1>(
                         p_source,
                         p_indices...
                     )
@@ -1830,14 +1824,14 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                auto l_result = copy_in_range_to(
+                auto l_result = copy_in_range_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
                     p_to_index,
                     p_output_index
                 );
-                p_source = disable_in_range(
+                p_source = disable_in_range.template operator()<1>(
                     p_source,
                     p_from_index,
                     p_to_index
@@ -1879,7 +1873,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return move_in_range_to(
+                return move_in_range_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -1922,7 +1916,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return move_in_range_to(
+                return move_in_range_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -1962,7 +1956,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return move_in_range_to(
+                return move_in_range_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -2002,7 +1996,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return move_from_to(
+                return move_from_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -2039,7 +2033,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return move_from_to(
+                return move_from_to.template operator()<1>(
                     p_destination,
                     p_source,
                     p_from_index,
@@ -2126,22 +2120,22 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 auto l_value1 = static_cast<tp_integral1_t>(
-                    disable_in_range(
+                    disable_in_range.template operator()<1>(
                         p_value1,
                         p_from_index,
                         p_to_index
-                    ) | extract_in_range(
+                    ) | extract_in_range.template operator()<1>(
                         p_value2,
                         p_from_index,
                         p_to_index
                     )
                 );
                 p_value2 = static_cast<std::remove_reference_t<tp_integral2_t>>(
-                    disable(
+                    disable.template operator()<1>(
                         p_value2,
                         p_from_index,
                         p_to_index   
-                    ) | extract_in_range(
+                    ) | extract_in_range.template operator()<1>(
                         p_value1,
                         p_from_index,
                         p_to_index
@@ -2181,11 +2175,11 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return (*this)(
+                return swap_in_range.template operator()<1>(
                     p_value1,
                     p_value2,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1 - p_from_index
+                    bit_size_of<tp_integral1_t> - 1
                 );
             }
 
@@ -2217,7 +2211,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return swap_in_range(
+                return swap_in_range.template operator()<1>(
                     p_value1,
                     p_value2,
                     p_from_index,
@@ -2257,19 +2251,19 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 auto l_value1 = static_cast<tp_integral1_t>(
-                    disable(
+                    disable.template operator()<1>(
                         p_value1,
                         p_indices...
-                    ) | extract(
+                    ) | extract.template operator()<1>(
                         p_value2,
                         p_indices...
                     )
                 );
                 auto l_value2 = static_cast<std::remove_reference_t<tp_integral2_t>>(
-                    disable(
+                    disable.template operator()<1>(
                         p_value2,
                         p_indices...
-                    ) | extract(
+                    ) | extract.template operator()<1>(
                         p_value1,
                         p_indices...
                     )
@@ -2307,7 +2301,14 @@ namespace bit {
             -> tp_integral1_t {
                 auto l_result = p_value;
                 for (auto i = 0; i < p_to_index - p_from_index + 1; ++i) {
-                    l_result = set(l_result, p_to_index - i, get(p_value, p_from_index + i));
+                    l_result = set.template operator()<1>(
+                        l_result,
+                        p_to_index - i,
+                        get.template operator()<1>(
+                            p_value,
+                            p_from_index + i
+                        )
+                    );
                     if (i == p_to_index)
                         break;
                 }
@@ -2338,10 +2339,10 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return (*this)(
+                return reverse_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1 - p_from_index
+                    bit_size_of<tp_integral1_t> - 1
                 );
             }
 
@@ -2365,7 +2366,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return reverse_in_range(
+                return reverse_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
                     p_from_index + p_count
@@ -2376,17 +2377,15 @@ namespace bit {
     auto constexpr reverse_from = detail::reverse_from_fn{};
 
     namespace detail {
-        struct reverse_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct reverse_fn : integer_adapter_closure_base {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return reverse_from(
+                return reverse_from.template operator()<1>(
                     p_value,
-                    0
+                    tp_integral_t{0}
                 );
             }
         };
@@ -2394,17 +2393,15 @@ namespace bit {
     auto constexpr reverse = detail::reverse_fn{};
 
     namespace detail {
-        struct reverse_low_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct reverse_low_word_fn : integer_adapter_closure_base {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return reverse_from(
+                return reverse_from.template operator()<1>(
                     p_value,
-                    std::size_t{0},
+                    tp_integral_t{0},
                     half_word_bit_size_of<tp_integral_t> - 1
                 );
             }
@@ -2413,15 +2410,13 @@ namespace bit {
     auto constexpr reverse_low_word = detail::reverse_low_word_fn{};
 
     namespace detail {
-        struct reverse_high_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct reverse_high_word_fn : integer_adapter_closure_base {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
-                return reverse_from(
+                return reverse_from.template operator()<1>(
                     p_value,
                     half_word_bit_size_of<tp_integral_t>
                 );
@@ -2455,10 +2450,10 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return copy_from(
+                return copy_from.template operator()<1>(
                     p_destination,
                     p_source,
-                    std::size_t{0},
+                    tp_integral1_t{0},
                     half_word_bit_size_of<tp_integral1_t> - 1
                 );
             }
@@ -2491,7 +2486,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return copy_from(
+                return copy_from.template operator()<1>(
                     p_destination,
                     p_source,
                     half_word_bit_size_of<tp_integral1_t>
@@ -2526,10 +2521,10 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return move_from(
+                return move_from.template operator()<1>(
                     p_source,
                     p_destination,
-                    std::size_t{0},
+                    tp_integral1_t{0},
                     half_word_bit_size_of<tp_integral1_t> - 1
                 );
             }
@@ -2562,7 +2557,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return move_from(
+                return move_from.template operator()<1>(
                     p_source,
                     p_destination,
                     half_word_bit_size_of<tp_integral1_t>
@@ -2597,10 +2592,10 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return swap_from(
+                return swap_from.template operator()<1>(
                     p_value1,
                     p_value2,
-                    std::size_t{0},
+                    tp_integral1_t{0},
                     half_word_bit_size_of<tp_integral1_t> - 1
                 );
             }
@@ -2633,7 +2628,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral1_t {
-                return swap_from(
+                return swap_from.template operator()<1>(
                     p_value1,
                     p_value2,
                     half_word_bit_size_of<tp_integral1_t>
@@ -2644,21 +2639,19 @@ namespace bit {
     auto constexpr swap_high_word = detail::swap_high_word_fn{};
 
     namespace detail {
-        struct swap_half_word_fn : integer_adapter_base {
-            using integer_adapter_base::operator();
-            template<int tp_overload = 0, std::integral tp_integral_t>
-            requires(must_only_be_called_by_closure<tp_overload>)
+        struct swap_half_word_fn : integer_adapter_closure_base {
+            template<std::integral tp_integral_t>
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_t p_value)
             const noexcept
             -> tp_integral_t {
                 return static_cast<tp_integral_t>(
-                    extract_in_range(
+                    extract_in_range.template operator()<1>(
                         p_value,
-                        std::size_t{0},
+                        tp_integral_t{0},
                         half_word_bit_size_of<tp_integral_t> - 1
                     ) |
-                    extract_in_range(
+                    extract_in_range.template operator()<1>(
                         p_value,
                         half_word_bit_size_of<tp_integral_t>
                     )
@@ -2886,11 +2879,11 @@ namespace bit {
             const noexcept
             -> bool {
                 return
-                    get(
+                    get.template operator()<1>(
                         p_value1,
                         p_index1
                     ) ==
-                    get(
+                    get.template operator()<1>(
                         p_value2,
                         p_index2
                     );
@@ -2927,7 +2920,7 @@ namespace bit {
             )
             const noexcept
             -> bool {
-                return compare(
+                return compare.template operator()<1>(
                     p_value1,
                     p_value2,
                     p_index,
@@ -2963,7 +2956,7 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
-                    disable_from(p_value, p_from_index, sizeof...(p_indices)) |
+                    disable_from.template operator()<1>(p_value, p_from_index, sizeof...(p_indices)) |
                     (integers_to_mask<tp_integral1_t>(p_indices...) << p_from_index)
                 );
             }
