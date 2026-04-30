@@ -505,7 +505,7 @@ namespace bit {
             }
         };
     }
-    auto constexpr bit_xor = detail::bit_and_fn{};
+    auto constexpr bit_xor = detail::bit_xor_fn{};
 
     namespace detail {
         struct bit_or_fn : integer_adapter_base {
@@ -532,7 +532,128 @@ namespace bit {
             }
         };
     }
-    auto constexpr bit_or = detail::bit_and_fn{};
+    auto constexpr bit_or = detail::bit_or_fn{};
+
+    namespace detail {
+        struct bit_not_fn : integer_adapter_closure_base {
+            template<typename tp_integral_t>
+            [[nodiscard]]
+            auto constexpr operator()(const tp_integral_t p_value1)
+            const noexcept
+            -> tp_integral_t {
+                return static_cast<tp_integral_t>(~p_value1);
+            }
+        };
+    }
+    auto constexpr bit_not = detail::bit_not_fn{};
+
+    namespace detail {
+        struct mul_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value1,
+                const tp_integral2_t p_value2
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return static_cast<tp_integral1_t>(p_value1 * p_value2);
+            }
+        };
+    }
+    auto constexpr mul = detail::mul_fn{};
+
+    namespace detail {
+        struct div_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value1,
+                const tp_integral2_t p_value2
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return static_cast<tp_integral1_t>(p_value1 / p_value2);
+            }
+        };
+    }
+    auto constexpr div = detail::div_fn{};
+
+    namespace detail {
+        struct add_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value1,
+                const tp_integral2_t p_value2
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return static_cast<tp_integral1_t>(p_value1 + p_value2);
+            }
+        };
+    }
+    auto constexpr add = detail::add_fn{};
+
+    namespace detail {
+        struct sub_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value1,
+                const tp_integral2_t p_value2
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return static_cast<tp_integral1_t>(p_value1 - p_value2);
+            }
+        };
+    }
+    auto constexpr sub = detail::sub_fn{};
 
     namespace detail {
         struct align_by_weak_shift_fn : integer_adapter_base {
