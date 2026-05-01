@@ -40,6 +40,28 @@ namespace bit {
                 tp_type2_t
             >;
 
+
+        namespace detail {
+            template<std::integral tp_like_t>
+            struct make_signed_like_fn {
+                template<std::integral tp_integral_t>
+                [[nodiscard]]
+                auto constexpr operator()(const tp_integral_t p_value)
+                const noexcept
+                -> auto {
+                    return static_cast<
+                        std::conditional_t<
+                            std::signed_integral<tp_like_t>,
+                            std::make_signed_t<tp_integral_t>,
+                            std::make_unsigned_t<tp_integral_t>
+                        >
+                    >(p_value);
+                }
+            };
+        }
+        template<std::integral tp_like_t>
+        auto constexpr make_signed_like = detail::make_signed_like_fn<tp_like_t>{};
+
         template<
             typename tp_type1_t,
             typename tp_type2_t
@@ -396,7 +418,7 @@ namespace bit {
             (... && (std::signed_integral<tp_first_t> == std::signed_integral<tp_rest_ts>));    
             
         template<class... tp_types_ts>
-        concept integrals_of_matching_signedness = detail::integrals_of_matching_signedness_impl<tp_types_ts...>;
+        concept integrals_of_matching_signedness = integrals_of_matching_signedness_impl<tp_types_ts...>;
     }
 
     namespace detail {
@@ -846,7 +868,7 @@ namespace bit {
                 return enable_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
                 );
             }
 
@@ -874,7 +896,7 @@ namespace bit {
                 return enable_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    p_from_index + p_count
+                    p_from_index | add(p_count)
                 );
             }
         };
@@ -905,7 +927,7 @@ namespace bit {
                 return disable_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
                 );
             }
 
@@ -933,7 +955,7 @@ namespace bit {
                 return disable_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    p_from_index + p_count
+                    p_from_index | add(p_count)
                 );
             }
         };
@@ -1068,7 +1090,7 @@ namespace bit {
                         p_value,
                         p_count
                     ) <<
-                    (bit_size_of<tp_integral1_t> - p_count));
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - p_count));
             }
         };
     }
@@ -1414,7 +1436,7 @@ namespace bit {
                 return extract_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
                 );
             }
 
@@ -1442,7 +1464,7 @@ namespace bit {
                 return extract_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    p_from_index + p_count
+                    p_from_index | add(p_count)
                 );
             }
         };
@@ -1486,7 +1508,7 @@ namespace bit {
                 return extract_from.template operator()<1>(
                     p_value,
                     tp_integral_t{0},
-                    bit_size_of<tp_integral_t>
+                    make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t> - 1)
                 );
             }
         };
@@ -1502,7 +1524,7 @@ namespace bit {
             -> tp_integral_t {
                 return extract_from.template operator()<1>(
                     p_value,
-                    bit_size_of<tp_integral_t>
+                    make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t>)
                 );
             }
         };
@@ -1548,7 +1570,7 @@ namespace bit {
             -> tp_integral_t {
                 return enable_from_right.template operator()<1>(
                     p_value,
-                    bit_size_of<tp_integral_t> / 2
+                    make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t>)
                 );
             }
         };
@@ -1564,7 +1586,7 @@ namespace bit {
             -> tp_integral_t {
                 return disable_from_right.template operator()<1>(
                     p_value,
-                    bit_size_of<tp_integral_t> / 2
+                    make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t>)
                 );
             }
         };
@@ -1580,7 +1602,7 @@ namespace bit {
             -> tp_integral_t {
                 return enable_from_left.template operator()<1>(
                     p_value,
-                    bit_size_of<tp_integral_t> / 2
+                    make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t>)
                 );
             }
         };
@@ -1596,7 +1618,7 @@ namespace bit {
             -> tp_integral_t {
                 return disable_from_left.template operator()<1>(
                     p_value,
-                    bit_size_of<tp_integral_t> / 2
+                    make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t>)
                 );
             }
         };
@@ -1604,15 +1626,15 @@ namespace bit {
     auto constexpr disable_high_word = detail::disable_high_word_fn{};
     
     template<std::integral tp_integral_t>
-    auto constexpr low_word_mask = enable_from_right(
+    auto constexpr low_word_mask = enable_from_right.template operator()<1>(
         tp_integral_t{},
-        bit_size_of<tp_integral_t> / 2
+        make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t>)
     );
 
     template<std::integral tp_integral_t>
     auto constexpr high_word_mask = static_cast<tp_integral_t>(~low_word_mask<tp_integral_t>);
 
-   namespace detail {
+    namespace detail {
         struct copy_in_range_to_fn : integer_adapter_base {
             using integer_adapter_base::operator();
             template<int tp_overload = 0, 
@@ -1745,7 +1767,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     p_from_index,
-                    bit_size_of<tp_integral1_t>,
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1),
                     p_output_index
                 );
             }
@@ -1785,7 +1807,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     p_from_index,
-                    p_from_index + p_count,
+                    p_from_index | add(p_count),
                     p_output_index
                 );
             }
@@ -1825,7 +1847,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
                 );
             }
             
@@ -1861,7 +1883,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     p_from_index,
-                    p_from_index + p_count
+                    p_from_index | add(p_count)
                 );
             }
         };
@@ -2041,7 +2063,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1,
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1),
                     p_output_index
                 );
             }
@@ -2081,7 +2103,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     p_from_index,
-                    p_from_index + p_count,
+                    p_from_index | add(p_count),
                     p_output_index
                 );
             }
@@ -2121,7 +2143,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1,
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1),
                     p_from_index
                 );
             }
@@ -2158,7 +2180,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     p_from_index,
-                    p_from_index + p_count,
+                    p_from_index | add(p_count),
                     p_from_index
                 );
             }
@@ -2300,7 +2322,7 @@ namespace bit {
                     p_value1,
                     p_value2,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
                 );
             }
 
@@ -2336,7 +2358,7 @@ namespace bit {
                     p_value1,
                     p_value2,
                     p_from_index,
-                    p_from_index + p_count
+                    p_from_index | add(p_count)
                 );
             }
         };
@@ -2463,7 +2485,7 @@ namespace bit {
                 return reverse_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
                 );
             }
 
@@ -2490,7 +2512,7 @@ namespace bit {
                 return reverse_in_range.template operator()<1>(
                     p_value,
                     p_from_index,
-                    p_from_index + p_count
+                    p_from_index | add(p_count)
                 );
             }
         };
@@ -2523,7 +2545,7 @@ namespace bit {
                 return reverse_from.template operator()<1>(
                     p_value,
                     tp_integral_t{0},
-                    half_word_bit_size_of<tp_integral_t> - 1
+                    make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t> - 1)
                 );
             }
         };
@@ -2539,7 +2561,7 @@ namespace bit {
             -> tp_integral_t {
                 return reverse_from.template operator()<1>(
                     p_value,
-                    half_word_bit_size_of<tp_integral_t>
+                    make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t>)
                 );
             }
         };
@@ -2575,7 +2597,7 @@ namespace bit {
                     p_destination,
                     p_source,
                     tp_integral1_t{0},
-                    half_word_bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(half_word_bit_size_of<tp_integral1_t> - 1)
                 );
             }
         };
@@ -2610,7 +2632,7 @@ namespace bit {
                 return copy_from.template operator()<1>(
                     p_destination,
                     p_source,
-                    half_word_bit_size_of<tp_integral1_t>
+                    make_signed_like<tp_integral1_t>(half_word_bit_size_of<tp_integral1_t>)
                 );
             }
         };
@@ -2646,7 +2668,7 @@ namespace bit {
                     p_source,
                     p_destination,
                     tp_integral1_t{0},
-                    half_word_bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(half_word_bit_size_of<tp_integral1_t> - 1)
                 );
             }
         };
@@ -2681,7 +2703,7 @@ namespace bit {
                 return move_from.template operator()<1>(
                     p_source,
                     p_destination,
-                    half_word_bit_size_of<tp_integral1_t>
+                    make_signed_like<tp_integral1_t>(half_word_bit_size_of<tp_integral1_t>)
                 );
             }
         };
@@ -2717,7 +2739,7 @@ namespace bit {
                     p_value1,
                     p_value2,
                     tp_integral1_t{0},
-                    half_word_bit_size_of<tp_integral1_t> - 1
+                    make_signed_like<tp_integral1_t>(half_word_bit_size_of<tp_integral1_t> - 1)
                 );
             }
         };
@@ -2752,7 +2774,7 @@ namespace bit {
                 return swap_from.template operator()<1>(
                     p_value1,
                     p_value2,
-                    half_word_bit_size_of<tp_integral1_t>
+                    make_signed_like<tp_integral1_t>(half_word_bit_size_of<tp_integral1_t>)
                 );
             }
         };
@@ -2770,11 +2792,11 @@ namespace bit {
                     extract_in_range.template operator()<1>(
                         p_value,
                         tp_integral_t{0},
-                        half_word_bit_size_of<tp_integral_t> - 1
+                        make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t> - 1)
                     ) |
                     extract_in_range.template operator()<1>(
                         p_value,
-                        half_word_bit_size_of<tp_integral_t>
+                        make_signed_like<tp_integral_t>(half_word_bit_size_of<tp_integral_t>)
                     )
                 );
             }
@@ -3084,6 +3106,446 @@ namespace bit {
         };
     }
     auto constexpr assign_by_sequence = detail::assign_by_sequence_fn{};
+
+    namespace detail {
+        struct mul_in_range_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_to_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return p_source_value |
+                    extract_in_range(
+                        p_from_index,
+                        p_to_index
+                    ) |
+                    shift_right(p_from_index) |
+                    mul(p_operand_value) |
+                    shift_left(p_from_index) |
+                    bit_or(p_source_value);
+            }
+        };
+    }
+    auto constexpr mul_in_range = detail::mul_in_range_fn{};
+
+    namespace detail {
+        struct div_in_range_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_to_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return p_source_value |
+                    extract_in_range(
+                        p_from_index,
+                        p_to_index
+                    ) |
+                    shift_right(p_from_index) |
+                    div(p_operand_value) |
+                    shift_left(p_from_index) |
+                    bit_or(p_source_value);
+            }
+        };
+    }
+    auto constexpr div_in_range = detail::div_in_range_fn{};
+
+    namespace detail {
+        struct add_in_range_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_to_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return p_source_value |
+                    extract_in_range(
+                        p_from_index,
+                        p_to_index
+                    ) |
+                    shift_right(p_from_index) |
+                    add(p_operand_value) |
+                    shift_left(p_from_index) |
+                    bit_or(p_source_value);
+            }
+        };
+    }
+    auto constexpr add_in_range = detail::add_in_range_fn{};
+
+    namespace detail {
+        struct sub_in_range_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_to_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return p_source_value |
+                    extract_in_range(
+                        p_from_index,
+                        p_to_index
+                    ) |
+                    shift_right(p_from_index) |
+                    sub(p_operand_value) |
+                    shift_left(p_from_index) |
+                    bit_or(p_source_value);
+            }
+        };
+    }
+    auto constexpr sub_in_range = detail::sub_in_range_fn{};
+
+    namespace detail {
+        struct mul_from_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return mul_in_range.template operator()<1>(
+                    p_source_value,
+                    p_operand_value,
+                    p_from_index,
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                );
+            }
+            
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_count
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return mul_in_range.template operator()<1>(
+                    p_source_value,
+                    p_operand_value,
+                    p_from_index,
+                    p_from_index | add(p_count)
+                );
+            }
+        };
+    }
+    auto constexpr mul_from = detail::mul_from_fn{};
+
+    namespace detail {
+        struct div_from_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return div_in_range.template operator()<1>(
+                    p_source_value,
+                    p_operand_value,
+                    p_from_index,
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                );
+            }
+            
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_count
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return div_in_range.template operator()<1>(
+                    p_source_value,
+                    p_operand_value,
+                    p_from_index,
+                    p_from_index | add(p_count)
+                );
+            }
+        };
+    }
+    auto constexpr div_from = detail::div_from_fn{};
+
+    namespace detail {
+        struct add_from_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return add_in_range.template operator()<1>(
+                    p_source_value,
+                    p_operand_value,
+                    p_from_index,
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                );
+            }
+            
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_count
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return add_in_range.template operator()<1>(
+                    p_source_value,
+                    p_operand_value,
+                    p_from_index,
+                    p_from_index | add(p_count)
+                );
+            }
+        };
+    }
+    auto constexpr add_from = detail::add_from_fn{};
+
+    namespace detail {
+        struct sub_from_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return sub_in_range.template operator()<1>(
+                    p_source_value,
+                    p_operand_value,
+                    p_from_index,
+                    make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                );
+            }
+            
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_source_value,
+                const tp_integral2_t p_operand_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_count
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return sub_in_range.template operator()<1>(
+                    p_source_value,
+                    p_operand_value,
+                    p_from_index,
+                    p_from_index | add(p_count)
+                );
+            }
+        };
+    }
+    auto constexpr sub_from = detail::sub_from_fn{};
 }
 
 #endif
