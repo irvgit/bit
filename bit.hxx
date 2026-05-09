@@ -3086,7 +3086,8 @@ namespace bit {
                 must_only_be_called_by_closure<tp_overload> &&
                 integrals_of_matching_signedness<
                     tp_integral1_t,
-                    tp_integral2_t
+                    tp_integral2_t,
+                    tp_integral_ts...
                 > &&
                 sizeof...(tp_integral_ts) <= bit_size_of<tp_integral1_t>
             )
@@ -3099,7 +3100,11 @@ namespace bit {
             const noexcept
             -> tp_integral1_t {
                 return static_cast<tp_integral1_t>(
-                    disable_from.template operator()<1>(p_value, p_from_index, sizeof...(p_indices)) |
+                    disable_from.template operator()<1>(
+                        p_value,
+                        p_from_index,
+                        make_signed_like<tp_integral1_t>(sizeof...(p_indices))
+                    ) |
                     (integers_to_mask<tp_integral1_t>(p_indices...) << p_from_index)
                 );
             }
