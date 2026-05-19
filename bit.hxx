@@ -1233,25 +1233,50 @@ namespace bit {
 
     namespace detail {
         template<std::integral tp_result_t>
-        struct integers_to_mask_fn {
+        struct integer_bit_sequence_to_mask_fn {
             template<std::integral... tp_integral_ts>
             requires(
-                integrals_of_matching_signedness<tp_integral_ts...> &&
+                integrals_of_matching_signedness<
+                    tp_result_t,
+                    tp_integral_ts...
+                > &&
+                sizeof...(tp_integral_ts) <= bit_size_of<tp_result_t>
+            )
+            [[nodiscard]]
+            auto constexpr operator()(const tp_integral_ts... p_integers)
+            const noexcept
+            -> tp_result_t {
+                auto l_result = tp_result_t{};
+                auto l_index = make_signed_like<tp_result_t>(sizeof...(p_integers) - 1);
+                (... , (l_result |= (p_integers << l_index), --l_index));
+                return l_result;
+            }
+        };
+    }
+    template<std::integral tp_result_t>
+    auto constexpr integer_bit_sequence_to_mask = detail::integer_bit_sequence_to_mask_fn<tp_result_t>{};
+
+    namespace detail {
+        template<std::integral tp_result_t>
+        struct indices_to_mask_fn {
+            template<std::integral... tp_integral_ts>
+            requires(
+                integrals_of_matching_signedness<
+                    tp_result_t,
+                    tp_integral_ts...
+                > &&
                 sizeof...(tp_integral_ts) <= bit_size_of<tp_result_t>
             )
             [[nodiscard]]
             auto constexpr operator()(const tp_integral_ts... p_indices)
             const noexcept
             -> tp_result_t {
-                auto l_result = tp_result_t{};
-                auto l_index = std::size_t{};
-                (... , (l_result |= (p_indices << l_index), ++l_index));
-                return l_result;
+                return static_cast<tp_result_t>((tp_result_t{} | ... | (1 << p_indices)));
             }
         };
     }
     template<std::integral tp_result_t>
-    auto constexpr integers_to_mask = detail::integers_to_mask_fn<tp_result_t>{};
+    auto constexpr indices_to_mask = detail::indices_to_mask_fn<tp_result_t>{};
 
     namespace detail {
         struct decimal_to_mask_fn {
@@ -1306,7 +1331,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral_t {
-                return static_cast<tp_integral_t>(p_value | integers_to_mask<tp_integral_t>(p_indices...));
+                return static_cast<tp_integral_t>(p_value | indices_to_mask<tp_integral_t>(p_indices...));
             }
         };
     }
@@ -1333,7 +1358,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral_t {
-                return static_cast<tp_integral_t>(p_value & ~integers_to_mask<tp_integral_t>(p_indices...));
+                return static_cast<tp_integral_t>(p_value & ~indices_to_mask<tp_integral_t>(p_indices...));
             }
         };
     }
@@ -1492,7 +1517,7 @@ namespace bit {
             )
             const noexcept
             -> tp_integral_t {
-                return static_cast<tp_integral_t>(p_value & integers_to_mask<tp_integral_t>(p_indices...));
+                return static_cast<tp_integral_t>(p_value & indices_to_mask<tp_integral_t>(p_indices...));
             }
         };
     }
@@ -3105,7 +3130,7 @@ namespace bit {
                         p_from_index,
                         make_signed_like<tp_integral1_t>(sizeof...(p_indices))
                     ) |
-                    (integers_to_mask<tp_integral1_t>(p_indices...) << p_from_index)
+                    (integer_bit_sequence_to_mask<tp_integral1_t>(p_indices...) << p_from_index)
                 );
             }
         };
