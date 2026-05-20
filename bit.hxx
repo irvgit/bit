@@ -678,6 +678,60 @@ namespace bit {
     auto constexpr sub = detail::sub_fn{};
 
     namespace detail {
+        struct equal_to_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value1,
+                const tp_integral2_t p_value2
+            )
+            const noexcept
+            -> bool {
+                return p_value1 == p_value2;
+            }
+        };
+    }
+    auto constexpr equal_to = detail::equal_to_fn{};
+
+    namespace detail {
+        struct not_equal_to_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value1,
+                const tp_integral2_t p_value2
+            )
+            const noexcept
+            -> bool {
+                return p_value1 != p_value2;
+            }
+        };
+    }
+    auto constexpr not_equal_to = detail::not_equal_to_fn{};
+
+    namespace detail {
         struct align_by_weak_shift_fn : integer_adapter_base {
             using integer_adapter_base::operator();
             template<int tp_overload = 0, 
@@ -1556,6 +1610,234 @@ namespace bit {
     }
     auto constexpr extract_high_word = detail::extract_high_word_fn{};
 
+    namespace detail {
+        struct read_in_range_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value,
+                const tp_integral2_t p_from_index,
+                const tp_integral3_t p_to_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return
+                    p_value |
+                    extract_in_range(
+                        p_from_index,
+                        p_to_index
+                    ) |
+                    shift_right(p_from_index);
+            }
+        };
+    }
+    auto constexpr read_in_range = detail::read_in_range_fn{};
+
+    namespace detail {
+        struct read_from_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value,
+                const tp_integral2_t p_from_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return
+                    p_value |
+                    extract_in_range(
+                        p_from_index,
+                        make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                    ) |
+                    shift_right(p_from_index);
+            }
+
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value,
+                const tp_integral2_t p_from_index,
+                const tp_integral3_t p_count
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return
+                    p_value |
+                    extract_in_range(
+                        p_from_index,
+                        p_from_index | add(p_count)
+                    ) |
+                    shift_right(p_from_index);
+            }
+        };
+    }
+    auto constexpr read_from = detail::read_from_fn{};
+
+    namespace detail {
+        struct write_in_range_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_destination_value,
+                const tp_integral2_t p_source_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_to_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return
+                    p_destination_value |
+                    disable_in_range(
+                        p_from_index,
+                        p_to_index
+                    ) |
+                    bit_or(
+                        p_source_value |
+                        shift_left(p_from_index) |
+                        extract_in_range(
+                            p_from_index,
+                            p_to_index
+                        )
+                    );
+            }
+        };
+    }
+    auto constexpr write_in_range = detail::write_in_range_fn{};
+
+    namespace detail {
+        struct write_from_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_destination_value,
+                const tp_integral2_t p_source_value,
+                const tp_integral3_t p_from_index
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return
+                    p_destination_value |
+                    disable_in_range(
+                        p_from_index,
+                        make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                    ) |
+                    bit_or(
+                        p_source_value |
+                        shift_left(p_from_index) |
+                        extract_in_range(
+                            p_from_index,
+                            make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                        )
+                    );
+            }
+
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_destination_value,
+                const tp_integral2_t p_source_value,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_count
+            )
+            const noexcept
+            -> tp_integral1_t {
+                return
+                    p_destination_value |
+                    disable_in_range(
+                        p_from_index,
+                        p_from_index | add(p_count)
+                    ) |
+                    bit_or(
+                        p_source_value |
+                        shift_left(p_from_index) |
+                        extract_in_range(
+                            p_from_index,
+                            p_from_index | add(p_count)
+                        )
+                    );
+            }
+        };
+    }
+    auto constexpr write_from = detail::write_from_fn{};
+    
     namespace detail {
         struct get_fn : integer_adapter_base {
             using integer_adapter_base::operator();
@@ -3016,7 +3298,7 @@ namespace bit {
     auto constexpr xor_high_word = detail::xor_high_word_fn{};
 
     namespace detail {
-        struct compare_fn : integer_adapter_base {
+        struct assymetric_compare_fn : integer_adapter_base {
             using integer_adapter_base::operator();
             template<int tp_overload = 0, 
                 typename tp_integral1_t,
@@ -3058,10 +3340,98 @@ namespace bit {
             }
         };
     }
+    auto constexpr assymetric_compare = detail::assymetric_compare_fn{};
+
+    namespace detail {
+        struct compare_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                class... tp_integral_ts
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral_ts...
+                > &&
+                equal_size_of<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t    p_value1,
+                const tp_integral2_t    p_value2,
+                const tp_integral_ts... p_indices
+            )
+            const noexcept
+            -> bool {
+                return (... && assymetric_compare.template operator()<1>(
+                    p_value1,
+                    p_value2,
+                    p_indices,
+                    p_indices
+                ));
+            }
+        };
+    }
     auto constexpr compare = detail::compare_fn{};
 
     namespace detail {
-        struct symetric_compare_fn : integer_adapter_base {
+        struct compare_in_range_fn : integer_adapter_base {
+            using integer_adapter_base::operator();
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                > &&
+                equal_size_of<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value1,
+                const tp_integral2_t p_value2,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_to_index
+            )
+            const noexcept
+            -> bool {
+                return
+                    p_value1 |
+                    extract_in_range(
+                        p_from_index,
+                        p_to_index
+                    ) |
+                    equal_to(
+                        p_value2 |
+                        extract_in_range(
+                            p_from_index,
+                            p_to_index
+                        )
+                    );
+            }
+        };
+    }
+    auto constexpr compare_in_range = detail::compare_in_range_fn{};
+
+    namespace detail {
+        struct compare_from_fn : integer_adapter_base {
             using integer_adapter_base::operator();
             template<int tp_overload = 0, 
                 typename tp_integral1_t,
@@ -3084,20 +3454,70 @@ namespace bit {
             auto constexpr operator()(
                 const tp_integral1_t p_value1,
                 const tp_integral2_t p_value2,
-                const tp_integral3_t p_index
+                const tp_integral3_t p_from_index
             )
             const noexcept
             -> bool {
-                return compare.template operator()<1>(
-                    p_value1,
-                    p_value2,
-                    p_index,
-                    p_index
-                );
+                return
+                    p_value1 |
+                    extract_in_range(
+                        p_from_index,
+                        make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                    ) |
+                    equal_to(
+                    p_value2 |
+                        extract_in_range(
+                            p_from_index,
+                            make_signed_like<tp_integral1_t>(bit_size_of<tp_integral1_t> - 1)
+                        )
+                    );
+            }
+
+            template<int tp_overload = 0, 
+                typename tp_integral1_t,
+                typename tp_integral2_t,
+                typename tp_integral3_t,
+                typename tp_integral4_t
+            >
+            requires(
+                must_only_be_called_by_closure<tp_overload> &&
+                integrals_of_matching_signedness<
+                    tp_integral1_t,
+                    tp_integral2_t,
+                    tp_integral3_t,
+                    tp_integral4_t
+                > &&
+                equal_size_of<
+                    tp_integral1_t,
+                    tp_integral2_t
+                >
+            )
+            [[nodiscard]]
+            auto constexpr operator()(
+                const tp_integral1_t p_value1,
+                const tp_integral2_t p_value2,
+                const tp_integral3_t p_from_index,
+                const tp_integral4_t p_count
+            )
+            const noexcept
+            -> bool {
+                return
+                    p_value1 |
+                    extract_in_range(
+                        p_from_index,
+                        p_from_index | add(p_count)
+                    ) |
+                    equal_to(
+                        p_value2 |
+                        extract_in_range(
+                            p_from_index,
+                            p_from_index | add(p_count)
+                        )
+                    );
             }
         };
     }
-    auto constexpr symetric_compare = detail::symetric_compare_fn{};
+    auto constexpr compare_from = detail::compare_from_fn{};
 
     namespace detail {
         struct assign_by_sequence_fn : integer_adapter_base {
